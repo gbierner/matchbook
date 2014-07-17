@@ -1,0 +1,138 @@
+The Grammar
+===========
+The syntax of the matchbook grammar can be found in Matchbook.g.  The
+semantics are encoded in ExpressionListener.java.  Below is a verbose
+description of this information, but the source files are the place to
+go to clear up any confusion.
+
+Annotations
+===========
+The basic unit in the matchbook grammar is an annotation, which is
+simply a range in the input sentence labeled with a type and an
+optional value when it is desirable to match a specific instance of
+the type (eg the token "hello" or the chunk "NP").  The syntax is:
+
+  TYPE:value
+  TYPE
+
+Where TYPE must be capitalized and value may be in mixed case.  Any
+annotation type/value may be used in a matchbook expression, but this
+only makes sense if a SentenceAnnotator exists to produce annotations
+of that type.  Annotators for several annotation types already exist:
+eg. TOKEN, STEM, CHUNK, CONCEPT, ANCESTOR_CONCEPT, and BOUNDARY.
+
+Furthermore, there is special syntax for some of these annotations to
+facilitate a simpler, more natural expression.
+
+Stems and Tokens
+----------------
+  Syntax:    [a-z]+  (a lowercase word) or '...' (anything in single quotes)
+  Semantics: The sequence of the tokenized and stemmed text as stems
+  Example:   dogs -> STEM:dog
+  	   'my barking dogs' -> STEM:my STEM:bark STEM:dog
+  Notes:     Handy for general matching as it matches on the normalized
+             form without having to worry about how the tokenizer or
+  	   stemmer works.
+  
+  Syntax:    ''...''
+  Semantics: The sequence of tokenized text as stems
+  Example:   ''dogs'' -> STEM:dogs
+  	   'my barking dogs' -> STEM:my STEM:barking STEM:dogs
+  Notes:     Use this one when you know exactly how your stemming works
+  	   and want to make sure that you match that and only that
+  	   stem.
+  
+  Syntax:    "..."
+  Semantics: The sequence of tokenized text as tokens
+  Example:   "dogs" -> Token:dogs
+             "my barking dogs" -> TOKEN:my TOKEN:barking TOKEN:dogs
+  Notes:     No generalization-- just match the tokens.
+
+Syntactic Annotations
+---------------------
+Part of Speech:
+  Syntax:  {POS}
+  Example: {VBN} -> POS:VBN
+
+Chunk:
+  Syntax:  [CHUNK]
+  Example: [NP] -> CHUNK:NP
+
+Concepts
+--------
+  Syntax:    <concept>
+  Semantics: Matches the concept or any type of that concept.
+  Example:   <dog> -> CONCEPT:dog ANCESTOR_CONCEPT:dog
+  Notes:     The above example would match dog and poodle.  See
+  	     SimpleConceptAnnotator and AncestorAnnotator for how
+	     those annotations are created.
+
+  Syntax:    <<concept>>
+  Semantics: Matches this concept exactly
+  Example:   <dog> -> CONCEPT:dog
+
+Compound Expressions
+====================
+  
+  Syntax:    a IS b
+  Semantics: The matched range must match both a and b
+  Example:   rat is {VB}
+  	     "A rat likes to rat people out."
+                             ---
+
+  Syntax:    a OR b
+  Semantics: Either a or b may be true for the range to match.
+  Example:   <dog> OR <cat>
+             "I love my tabby."
+                        -----
+
+  Syntax:    a ISNT b
+  Semantics: A must match and b must not match.
+  Example:   [DT] isnt a
+  	     "The dog chased a cat"
+              ---
+
+  Syntax:    a b ...
+  Semantics: a and b must appear adjacent to each other.
+  Example:   <dog> eat [NP]
+  	     My poodle eats kibble.
+	        ------------------
+
+  Syntax:    ANNOTATION WITH a
+             ANNOTATION WITH (a, b, ...)
+  Semantics: Match any of the given annotation containing the given
+             expressions 
+  Example:   CHUNK WITH (\"really\", those)
+  	     "I really love those really big dogs."
+                            ---------------------
+
+Repeat
+======
+Syntax exists to allow expressions can be matched repeatedly.
+
+  Syntax:    expression?
+  Semantics: Repeat expression 0 or 1 time
+  
+  Syntax:    expression[n]
+  Semantics: Repeat expression n times
+  
+  Syntax:    expression[n:m]
+  Semantics: Repeat expression n to m times
+  
+Note that there is no + or * operators.  That's because, at this time,
+it's unclear to me how one would implement that as a search query, and
+I want all expressions to be usable in that context.
+
+Capture
+=======
+You can also capture portions of the matched text, much like regular
+expression capture groups.  
+
+  Syntax:    name=expression
+  Semantics: Capture the position of the matched expression with the
+  	     given name.
+  Example:   a=CHUNK WITH (b=\"really\", c=those)
+             "I really love those really big dogs"
+                            [-c-] [-b--]
+                            [---------a---------]
+                                 
