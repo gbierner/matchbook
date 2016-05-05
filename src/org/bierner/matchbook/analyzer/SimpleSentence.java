@@ -30,15 +30,20 @@ public class SimpleSentence implements Sentence {
     public <T> Annotations<T> getAnnotations(AnnotationType<T> type) {
         if (! annotatable.annotationCache.containsKey(type))
             analyzer.applyAnnotations(annotatable, type);
-        
+
         return (Annotations<T>) annotatable.annotationCache.get(type);
+    }
+
+    @Override
+    public <T> boolean hasAnnotation(AnnotationType<T> type) {
+        return analyzer.provides(annotatable, type);
     }
 
     @RequiredArgsConstructor
     private static class SimpleAnnotatable implements AnnotatableSentence {
         @NonNull @Delegate
         SimpleSentence delegate;
-        
+
         private Map<AnnotationType<?>, Annotations<?>> annotationCache = new HashMap<>();
 
         @Override

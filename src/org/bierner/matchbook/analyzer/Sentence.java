@@ -18,12 +18,20 @@ public interface Sentence {
      * @return a locale
      */
     Locale getLocale();
-    
+
     /**
      * Returns the original text of this sentence.
      * @return a locale
      */
     String getText();
+
+    /**
+     * Returns true if this sentence provides the requested annotation.
+     * @param <T>
+     * @param type
+     * @return true if this sentence provides the requested annotation.
+     */
+    <T> boolean hasAnnotation(AnnotationType<T> type);
 
     /**
      * Returns the annotations for the requested type.

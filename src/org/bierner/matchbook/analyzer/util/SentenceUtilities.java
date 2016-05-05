@@ -91,7 +91,18 @@ public class SentenceUtilities {
      * @return A string representing the sub sentence
      */
     public static String subSentence(Sentence sentence, int start, int end) {
-         return Joiner.on(" ").join(getAnnotationValues(sentence, AnnotationType.TOKEN).subList(start, end));
+        if (sentence.hasAnnotation(AnnotationType.SPACE)) {
+            StringBuilder sb = new StringBuilder();
+            List<Boolean> spaces = getAnnotationValues(sentence, AnnotationType.SPACE);
+            List<String> tokens = getAnnotationValues(sentence, AnnotationType.TOKEN);
+            for (int i = start; i < end; i++) {
+                if (i != start && spaces.get(i))
+                    sb.append(" ");
+                sb.append(tokens.get(i));
+            }
+            return sb.toString();
+        } else
+            return Joiner.on(" ").join(getAnnotationValues(sentence, AnnotationType.TOKEN).subList(start, end));
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -17,11 +17,11 @@ import java.util.Set;
  * uses a supplied {@link LanguageDetector} and locale-based factories to analyze text for a
  * whatever languages are supported by the supplied factories.  Specific Analyzers could easily be written
  * to wrap entire projects if desired.
- * 
+ *
  * The bulk of analysis is done on the sentence level, so {@link Sentence} is where most of the action is.
  * An Analyzer would typically create Sentences from text and provide itself as the strategy for providing
  * annotations.  This is how {@link SimpleSentence} works.
- * 
+ *
  * @author gann
  */
 public interface Analyzer {
@@ -32,28 +32,36 @@ public interface Analyzer {
      * sentence detection to have occurred.
      *
      * @param text the text to analyze as one Sentence unit
-     * @return a <@link Sentence> 
+     * @return a <@link Sentence>
      */
-    Sentence getSentence(String text);    
-    
+    Sentence getSentence(String text);
+
     /**
      * Sentence detects the given text.
-     * 
+     *
      * @param text the text break into sentences
      * @return a list of sentences
      */
     List<Sentence> getSentences(String text);
-    
+
     /**
      * Applies annotations from a sentence for the requested type.  See {@link AnnotationType} for some existing types and
      * information on how to construct and register your own.  An {@link AnnotatableSentence} is required for the annotations
      * to be set, allowing a {@link Sentence} implementation to protect itself from outside interference.
-     * 
+     *
      * @param <T> The type of the annotations value
      * @param sentence the sentence from which to create the annotations.  It must be, specifically, an {@link AnnotatableSentence}
      * so that it can accept new annotations.
      * @param type the annotation type (eg token, stem, etc) to be computed and applied
      */
     <T> void applyAnnotations(AnnotatableSentence sentence, AnnotationType<T> type);
-    
+
+    /**
+     * Returns true if the given annotation is supported for the given sentence
+     * @param <T>
+     * @param sentence
+     * @param type
+     * @return true if the type is supported
+     */
+    <T> boolean provides(AnnotatableSentence sentence, AnnotationType<T> type);
 }

@@ -5,6 +5,7 @@ import lombok.experimental.ExtensionMethod;
 import org.bierner.matchbook.analyzer.Sentence;
 import org.bierner.matchbook.analyzer.SimpleAnalyzer;
 import org.bierner.matchbook.analyzer.java.BreakIteratorSentenceDetector;
+import org.bierner.matchbook.analyzer.misc.SpaceAnnotator;
 import org.bierner.matchbook.analyzer.opennlp.PorterStemmer;
 import org.bierner.matchbook.analyzer.opennlp.ThreadSafeOpenNLPChunker;
 import org.bierner.matchbook.analyzer.opennlp.ThreadSafeOpenNLPPosTagger;
@@ -27,6 +28,7 @@ public class Main {
                 locale(Locale.ENGLISH).
                 sentenceDetector(new BreakIteratorSentenceDetector(Locale.ENGLISH)).
                 annotator(new ThreadSafeOpenNLPTokenizer(Locale.ENGLISH)).
+                annotator(new SpaceAnnotator()).
                 annotator(new ThreadSafeOpenNLPPosTagger(Locale.ENGLISH)).
                 annotator(new ThreadSafeOpenNLPChunker(Locale.ENGLISH)).
                 annotator(new PorterStemmer()).build();
@@ -36,6 +38,12 @@ public class Main {
         Expression expr = new RealtimeExpressionFactory(analyzer).parse(args[1]);
         RealtimeSentenceMatcher matcher = RealtimeMatcherFactory.newIndexingMatcher(expr);
         RealtimeSentenceMatcher.Matches matches = matcher.match(sentence);
+
+        if (matches == null) {
+            System.out.println("No matches");
+            return;
+        }
+
         for (Match match: matches) {
             System.out.println();
             System.out.format("%s (%d-%d)\n", sentence.subSentence(match.getStart(), match.getEnd()), match.getStart(), match.getEnd());
