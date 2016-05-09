@@ -15,11 +15,12 @@ import lombok.ToString;
 public interface Annotation<T> {
     public static final String STEM             = "STEM";
     public static final String TOKEN            = "TOKEN";
-    public static final String SPACE            = "SPACE"; 
+    public static final String SPACE            = "SPACE";
     public static final String CONCEPT          = "CONCEPT";
     public static final String ANCESTOR_CONCEPT = "ANCESTOR_CONCEPT";
     public static final String POS              = "POS";
     public static final String CHUNK            = "CHUNK";
+    public static final String MATCH            = "MATCH";
     public static final String BOUNDARY         = "BOUNDARY";
     public static final String BOUNDARY_START   = "START";
     public static final String BOUNDARY_END     = "END";

@@ -26,6 +26,12 @@ public interface Sentence {
     String getText();
 
     /**
+     * Returns the analyzer used to annotate this sentence.
+     * @return an analyzer
+     */
+    Analyzer getAnalyzer();
+
+    /**
      * Returns true if this sentence provides the requested annotation.
      * @param <T>
      * @param type

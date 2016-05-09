@@ -7,6 +7,8 @@ import com.google.common.collect.Range;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.bierner.matchbook.analyzer.Sentence;
 import org.bierner.matchbook.matcher.realtime.expr.Expression;
 
@@ -15,17 +17,17 @@ import org.bierner.matchbook.matcher.realtime.expr.Expression;
  * no prior knowledge of the input text, so no preprocessing can take place.  This does not preclude an
  * index-based approach, for example, but the indexing must take place at the time of the matching process
  * and not off-line.
- * 
+ *
  * Although it is not specified in the interface, it's expected that an implementation be built given one
  * or more {@link Expression}s to match.
- * 
+ *
  * @author gann
  */
 public interface RealtimeSentenceMatcher {
 
     /**
      * Capture groups are the result of successfully matching named expressions, as in
-     * <code>name=expression</code>.  From here, one can obtain the matched names and 
+     * <code>name=expression</code>.  From here, one can obtain the matched names and
      * the positions of the matches in the sentence.
      */
     public interface CaptureGroups {
@@ -37,13 +39,13 @@ public interface RealtimeSentenceMatcher {
                 return result;
             }
         }
-        
+
         /**
          * Returns the names of the captured positions.
          * @return a {@link Set} of names
          */
         Set<String> getIds();
-        
+
         /**
          * Returns the starting position of requested name
          * @param id
@@ -56,9 +58,9 @@ public interface RealtimeSentenceMatcher {
          * @param id
          * @return the ending position
          */
-        int getEnd(String id);        
+        int getEnd(String id);
     }
-    
+
     /**
      * A Match is a single instance of an expression matching within a sentence.
      */
@@ -68,7 +70,7 @@ public interface RealtimeSentenceMatcher {
          * @return the start position
          */
         int getStart();
-        
+
         /**
          * Returns the ending position of the match.
          * @return the end position
@@ -81,7 +83,7 @@ public interface RealtimeSentenceMatcher {
          */
         CaptureGroups getCaptureGroups();
     }
-    
+
     /**
      * An collection of matches ordered by match position.  Sorting is first by start position
      * and then by end position of the match.
@@ -92,15 +94,19 @@ public interface RealtimeSentenceMatcher {
          * @return the number of matches
          */
         int size();
-        
+
         /**
          * Returns the match for the given position
          * @param pos
          * @return a {@link Match} object
          */
         Match get(int pos);
+
+        public default Stream<Match> stream() {
+            return StreamSupport.stream(spliterator(), false);
+        }
     }
-    
+
     /**
      * Returns the matches within a given sentence.
      * @param sentence

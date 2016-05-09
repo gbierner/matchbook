@@ -24,9 +24,10 @@ public class AnnotationType<T> {
 
     public static final AnnotationType<String>  STEM     = new AnnotationType<>(Annotation.STEM, String.class);
     public static final AnnotationType<String>  TOKEN    = new AnnotationType<>(Annotation.TOKEN, String.class);
-    public static final AnnotationType<Boolean> SPACE    = new AnnotationType<>(Annotation.SPACE, Boolean.class); 
+    public static final AnnotationType<Boolean> SPACE    = new AnnotationType<>(Annotation.SPACE, Boolean.class);
     public static final AnnotationType<String>  POS      = new AnnotationType<>(Annotation.POS, String.class);
     public static final AnnotationType<String>  CHUNK    = new AnnotationType<>(Annotation.CHUNK, String.class);
+    public static final AnnotationType<String>  MATCH    = new AnnotationType<>(Annotation.MATCH, String.class);
     public static final AnnotationType<String>  BOUNDARY = new AnnotationType<>(Annotation.BOUNDARY, String.class);
     public static final AnnotationType<Concept> CONCEPT  = new AnnotationType<>(Annotation.CONCEPT, Concept.class);
     public static final AnnotationType<Concept> ANCESTOR_CONCEPT  = new AnnotationType<>(Annotation.ANCESTOR_CONCEPT, Concept.class);
