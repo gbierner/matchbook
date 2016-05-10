@@ -14,15 +14,15 @@ import org.bierner.matchbook.analyzer.Annotation;
  */
 @AllArgsConstructor
 public class AnnotationExpression implements Expression {
-    
+
     @Getter private String type;
     @Getter private String value;
 
     @Override
     public void accept(ExpressionVisitor visitor) {
         visitor.visit(this);
-    }    
-    
+    }
+
     @Override
     public String toString() {
         if (value == null)

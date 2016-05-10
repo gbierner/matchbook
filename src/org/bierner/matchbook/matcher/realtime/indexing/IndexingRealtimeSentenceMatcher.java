@@ -9,11 +9,14 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+import gnu.trove.set.hash.THashSet;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -34,6 +37,7 @@ import static org.bierner.matchbook.matcher.realtime.expr.CompoundExpression.Typ
 import static org.bierner.matchbook.matcher.realtime.expr.CompoundExpression.Type.ISNT;
 import org.bierner.matchbook.matcher.realtime.expr.Expression;
 import org.bierner.matchbook.matcher.realtime.expr.ExpressionVisitor;
+import org.bierner.matchbook.matcher.realtime.expr.RegexExpression;
 import org.bierner.matchbook.matcher.realtime.expr.RepeatExpression;
 import org.bierner.matchbook.matcher.realtime.expr.WithExpression;
 
@@ -53,6 +57,9 @@ public class IndexingRealtimeSentenceMatcher implements RealtimeSentenceMatcher 
     // A map containing just those elements that are required to be indexed for matching purposes.
     // The map is from annotation type to annotation value.
     private HashMultimap<String, String> idsToMatch = HashMultimap.create();
+
+    // Regular expressions to match against tokens
+    private Set<String> regexpsToMatch;
 
     ///////////////////////////////////////////////////////////////////////////
     // Construction
@@ -105,7 +112,11 @@ public class IndexingRealtimeSentenceMatcher implements RealtimeSentenceMatcher 
                 @Override public void visit(AnnotationExpression expr) {
                     idsToMatch.put(expr.getType(), expr.getValue());
                 }
-
+                @Override public void visit(RegexExpression expr) {
+                    if (regexpsToMatch == null)
+                        regexpsToMatch = new THashSet<>();
+                    regexpsToMatch.add(expr.getRegex());
+                }
                 @Override public void visit(CaptureExpression expr) { }
                 @Override public void visit(CompoundExpression expr) { }
                 @Override public void visit(RepeatExpression expr) { }
@@ -179,6 +190,22 @@ public class IndexingRealtimeSentenceMatcher implements RealtimeSentenceMatcher 
                 }
             }
         }
+
+        if (regexpsToMatch != null)
+            for (String regex: regexpsToMatch) {
+                Matcher m = Pattern.compile(regex).matcher("");
+                for (Annotation<?> annotation : sentence.getAnnotations(AnnotationType.TOKEN)) {
+                    m.reset(annotation.getId());
+                    String id = "/" + regex + "/";
+                    if (m.matches()) {
+                        Vector v = index.get(Annotation.TOKEN, id);
+                        if (v == null)
+                            index.put(Annotation.TOKEN, id, v = vectorFactory.newInstance());
+                        v.add(annotation.getStart(), annotation.getEnd());
+                    }
+                }
+            }
+
         return index;
     }
 
@@ -237,6 +264,12 @@ public class IndexingRealtimeSentenceMatcher implements RealtimeSentenceMatcher 
         @Override
         public void visit(WithExpression expr) {
             vectors.put(expr, factory.with(vectors.get(expr.getAnnotation()), vectors.get(expr.getWithExpression())));
+        }
+
+        @Override
+        public void visit(RegexExpression expr) {
+            Vector v = index.get(Annotation.TOKEN, "/" + expr.getRegex() + "/");
+            vectors.put(expr, v == null? vectorFactory.emptyInstance() : v);
         }
     }
 

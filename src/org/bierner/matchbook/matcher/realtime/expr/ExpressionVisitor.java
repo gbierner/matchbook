@@ -9,8 +9,9 @@ package org.bierner.matchbook.matcher.realtime.expr;
  */
 public interface ExpressionVisitor {
     void visit(AnnotationExpression expr);
-    void visit(CaptureExpression expr);    
-    void visit(CompoundExpression expr);        
-    void visit(RepeatExpression expr);            
-    void visit(WithExpression expr);                
+    void visit(CaptureExpression expr);
+    void visit(CompoundExpression expr);
+    void visit(RepeatExpression expr);
+    void visit(WithExpression expr);
+    void visit(RegexExpression expr);
 }

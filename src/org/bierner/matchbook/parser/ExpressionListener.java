@@ -27,8 +27,8 @@ import org.bierner.matchbook.matcher.ExpressionFactory;
  * Given an {@link ExpressionFactory}, this class will traverse a matchbook expression and build up
  * a final expression.  It shouldn't be necessary to access this class directly, though.  See the
  * {@link ExpressionFactory#parse(java.lang.String) } method for the simplest entry point.
- * 
- * @param <T> 
+ *
+ * @param <T>
  * @author gann
  */
 @RequiredArgsConstructor
@@ -36,14 +36,14 @@ import org.bierner.matchbook.matcher.ExpressionFactory;
 public class ExpressionListener<T> implements MatchbookListener {
     @NonNull private Analyzer analyzer;
     @NonNull private ExpressionFactory<T> exprFactory;
-    
-    private ParseTreeProperty<T> exprs = new ParseTreeProperty<>();    
+
+    private ParseTreeProperty<T> exprs = new ParseTreeProperty<>();
 
     @Getter T result;
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Atomic Expressions
-    ///////////////////////////////////////////////////////////////////////////    
+    ///////////////////////////////////////////////////////////////////////////
     @Override public void enterEnd(MatchbookParser.EndContext ctx) { }
     @Override public void exitEnd(MatchbookParser.EndContext ctx) {
         exprs.put(ctx, exprFactory.end());
@@ -59,6 +59,11 @@ public class ExpressionListener<T> implements MatchbookListener {
         exprs.put(ctx, exprFactory.annotation(Annotation.POS, ctx.getText().substring(1, ctx.getText().length()-1)));
     }
 
+    @Override public void enterRegex(MatchbookParser.RegexContext ctx) { }
+    @Override public void exitRegex(MatchbookParser.RegexContext ctx) {
+        exprs.put(ctx, exprFactory.regexp(ctx.getText().substring(1, ctx.getText().length()-1)));
+    }
+
     @Override public void enterConcept(MatchbookParser.ConceptContext ctx) { }
     @Override public void exitConcept(MatchbookParser.ConceptContext ctx) {
         String concept = ctx.getText().substring(1, ctx.getText().length()-1);
@@ -66,18 +71,17 @@ public class ExpressionListener<T> implements MatchbookListener {
                 add(exprFactory.annotation(Annotation.CONCEPT, concept)).
                 add(exprFactory.annotation(Annotation.ANCESTOR_CONCEPT, concept)).build()));
     }
-    
+
     @Override public void enterExactConcept(MatchbookParser.ExactConceptContext ctx) { }
     @Override public void exitExactConcept(MatchbookParser.ExactConceptContext ctx) {
         exprs.put(ctx, exprFactory.annotation(Annotation.CONCEPT, ctx.getText().substring(2, ctx.getText().length()-2)));
     }
 
     @Override public void enterChunk(MatchbookParser.ChunkContext ctx) { }
-    @Override
-    public void exitChunk(MatchbookParser.ChunkContext ctx) {
+    @Override public void exitChunk(MatchbookParser.ChunkContext ctx) {
         exprs.put(ctx, exprFactory.annotation(Annotation.CHUNK, ctx.getText().substring(1, ctx.getText().length()-1)));
-    }    
-    
+    }
+
     @Override public void enterAnnotation(MatchbookParser.AnnotationContext ctx) { }
     @Override public void exitAnnotation(MatchbookParser.AnnotationContext ctx) {
             exprs.put(ctx, getAnnotation(ctx.getText()));
@@ -90,10 +94,10 @@ public class ExpressionListener<T> implements MatchbookListener {
         else
             return exprFactory.annotation(text);
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // String sequences
-    ///////////////////////////////////////////////////////////////////////////    
+    ///////////////////////////////////////////////////////////////////////////
     private T stringSequence(List<String> annotation, String type) {
         if (annotation.size() == 1)
             return exprFactory.annotation(type, annotation.get(0));
@@ -104,30 +108,30 @@ public class ExpressionListener<T> implements MatchbookListener {
             return exprFactory.sequence(annotations);
         }
     }
-    
+
     @Override public void enterTokens(MatchbookParser.TokensContext ctx) { }
     @Override public void exitTokens(MatchbookParser.TokensContext ctx) {
         String text = ctx.getText().substring(1, ctx.getText().length() - 1);
         exprs.put(ctx, stringSequence(analyzer.getSentence(text).getTokens(), Annotation.TOKEN));
     }
-    
+
     @Override public void enterStems(MatchbookParser.StemsContext ctx) { }
     @Override @SuppressWarnings("unchecked")
     public void exitStems(MatchbookParser.StemsContext ctx) {
         String text = ctx.getText().startsWith("'")? ctx.getText().substring(1, ctx.getText().length() - 1) : ctx.getText();
-        exprs.put(ctx, stringSequence(analyzer.getSentence(text).getStems(), Annotation.STEM));        
-    }    
-    
+        exprs.put(ctx, stringSequence(analyzer.getSentence(text).getStems(), Annotation.STEM));
+    }
+
     @Override public void enterStrictStems(MatchbookParser.StrictStemsContext ctx) { }
     @Override public void exitStrictStems(MatchbookParser.StrictStemsContext ctx) {
         String text = ctx.getText().substring(2, ctx.getText().length() - 2);
-        exprs.put(ctx, stringSequence(analyzer.getSentence(text).getTokens(), Annotation.STEM));        
-    }    
-    
+        exprs.put(ctx, stringSequence(analyzer.getSentence(text).getTokens(), Annotation.STEM));
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Compound Expressions
-    ///////////////////////////////////////////////////////////////////////////    
-    private void handleCompoundExpression(ParseTree ctx, Function<List<T>, T> fcn) {    
+    ///////////////////////////////////////////////////////////////////////////
+    private void handleCompoundExpression(ParseTree ctx, Function<List<T>, T> fcn) {
         handleCompoundExpression(ctx, fcn, true);
     }
     private void handleCompoundExpression(ParseTree ctx, Function<List<T>, T> fcn, boolean hasOp) {
@@ -141,12 +145,12 @@ public class ExpressionListener<T> implements MatchbookListener {
             exprs.put(ctx, fcn.apply(subExpressions));
         }
     }
-    
+
     @Override public void enterOr(MatchbookParser.OrContext ctx) { }
     @Override public void exitOr(MatchbookParser.OrContext ctx) {
         handleCompoundExpression(ctx, exprFactory.orFcn);
     }
-    
+
     @Override public void enterSequence(MatchbookParser.SequenceContext ctx) { }
     @Override public void exitSequence(MatchbookParser.SequenceContext ctx) {
         handleCompoundExpression(ctx, exprFactory.sequenceFcn, false);
@@ -156,7 +160,7 @@ public class ExpressionListener<T> implements MatchbookListener {
     @Override public void exitIs(MatchbookParser.IsContext ctx) {
         handleCompoundExpression(ctx, exprFactory.isFcn);
     }
-    
+
     @Override public void enterIsnt(MatchbookParser.IsntContext ctx) { }
     @Override public void exitIsnt(MatchbookParser.IsntContext ctx) {
         if (ctx.getChildCount() == 1)
@@ -165,15 +169,15 @@ public class ExpressionListener<T> implements MatchbookListener {
             exprs.put(ctx, exprFactory.isnt(exprs.get(ctx.getChild(0)), exprs.get(ctx.getChild(2))));
     }
 
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // With
-    ///////////////////////////////////////////////////////////////////////////    
+    ///////////////////////////////////////////////////////////////////////////
     @Override public void enterWith(MatchbookParser.WithContext ctx) { }
     @Override public void exitWith(MatchbookParser.WithContext ctx) {
         exprs.put(ctx, exprFactory.with(getAnnotation(ctx.getChild(0).getText()), exprs.get(ctx.getChild(2))));
     }
-    
+
     @Override public void enterWithList(MatchbookParser.WithListContext ctx) { }
     @Override public void exitWithList(MatchbookParser.WithListContext ctx) {
         // ANNOTATION WITH ( expr, expr, ...)
@@ -183,10 +187,10 @@ public class ExpressionListener<T> implements MatchbookListener {
             l.add(exprFactory.with(annotation, exprs.get(ctx.getChild(i))));
         exprs.put(ctx, exprFactory.is(l));
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Repeat
-    ///////////////////////////////////////////////////////////////////////////    
+    ///////////////////////////////////////////////////////////////////////////
     @Override public void enterRepeatNtoM(MatchbookParser.RepeatNtoMContext ctx) { }
     @Override public void exitRepeatNtoM(MatchbookParser.RepeatNtoMContext ctx) {
         int n = Integer.parseInt(ctx.getChild(2).getText());
@@ -204,15 +208,15 @@ public class ExpressionListener<T> implements MatchbookListener {
         int n = Integer.parseInt(ctx.getChild(2).getText());
         exprs.put(ctx, exprFactory.repeat(exprs.get(ctx.getChild(0)), n, n));
     }
-    
+
     @Override public void enterRepeatNone(MatchbookParser.RepeatNoneContext ctx) { }
     @Override public void exitRepeatNone(MatchbookParser.RepeatNoneContext ctx) {
         exprs.put(ctx, exprs.get(ctx.getChild(0)));
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     // Misc
-    ///////////////////////////////////////////////////////////////////////////    
+    ///////////////////////////////////////////////////////////////////////////
     @Override public void enterCapture(MatchbookParser.CaptureContext ctx) { }
     @Override public void exitCapture(MatchbookParser.CaptureContext ctx) {
         if (ctx.getChildCount() == 1)
@@ -220,12 +224,12 @@ public class ExpressionListener<T> implements MatchbookListener {
         else
             exprs.put(ctx, exprFactory.capture(ctx.getChild(0).getText(), exprs.get(ctx.getChild(2))));
     }
-    
+
     @Override public void enterExpr(MatchbookParser.ExprContext ctx) { }
     @Override public void exitExpr(MatchbookParser.ExprContext ctx) {
-        exprs.put(ctx, exprs.get(ctx.getChild(1)));        
+        exprs.put(ctx, exprs.get(ctx.getChild(1)));
     }
-    
+
     @Override public void enterExpression(MatchbookParser.ExpressionContext ctx) { }
     @Override public void exitExpression(MatchbookParser.ExpressionContext ctx) {
         result = exprs.get(ctx.getChild(0));
@@ -235,6 +239,6 @@ public class ExpressionListener<T> implements MatchbookListener {
     @Override public void visitErrorNode(ErrorNode en) { }
 
     @Override public void enterEveryRule(ParserRuleContext prc) { }
-    @Override public void exitEveryRule(ParserRuleContext prc) { }   
+    @Override public void exitEveryRule(ParserRuleContext prc) { }
 
 }

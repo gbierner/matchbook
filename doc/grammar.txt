@@ -29,24 +29,33 @@ Stems and Tokens
   Syntax:    [a-z]+  (a lowercase word) or '...' (anything in single quotes)
   Semantics: The sequence of the tokenized and stemmed text as stems
   Example:   dogs -> STEM:dog
-  	   'my barking dogs' -> STEM:my STEM:bark STEM:dog
+             'my barking dogs' -> STEM:my STEM:bark STEM:dog
   Notes:     Handy for general matching as it matches on the normalized
              form without having to worry about how the tokenizer or
-  	   stemmer works.
+             stemmer works.
   
   Syntax:    ''...''
   Semantics: The sequence of tokenized text as stems
   Example:   ''dogs'' -> STEM:dogs
-  	   'my barking dogs' -> STEM:my STEM:barking STEM:dogs
+             'my barking dogs' -> STEM:my STEM:barking STEM:dogs
   Notes:     Use this one when you know exactly how your stemming works
-  	   and want to make sure that you match that and only that
-  	   stem.
+             and want to make sure that you match that and only that
+             stem.
   
   Syntax:    "..."
   Semantics: The sequence of tokenized text as tokens
   Example:   "dogs" -> Token:dogs
              "my barking dogs" -> TOKEN:my TOKEN:barking TOKEN:dogs
   Notes:     No generalization-- just match the tokens.
+
+Regular Expressions
+-------------------
+Matches tokens by regular expression
+
+  Syntax:    /.../
+  Example:   /.*o.*/
+             "my dog loves my cat"
+                 --- -----
 
 Syntactic Annotations
 ---------------------
@@ -64,8 +73,8 @@ Concepts
   Semantics: Matches the concept or any type of that concept.
   Example:   <dog> -> CONCEPT:dog ANCESTOR_CONCEPT:dog
   Notes:     The above example would match dog and poodle.  See
-  	     SimpleConceptAnnotator and AncestorAnnotator for how
-	     those annotations are created.
+             SimpleConceptAnnotator and AncestorAnnotator for how
+             those annotations are created.
 
   Syntax:    <<concept>>
   Semantics: Matches this concept exactly
@@ -77,7 +86,7 @@ Compound Expressions
   Syntax:    a IS b
   Semantics: The matched range must match both a and b
   Example:   rat is {VB}
-  	     "A rat likes to rat people out."
+             "A rat likes to rat people out."
                              ---
 
   Syntax:    a OR b
@@ -89,21 +98,21 @@ Compound Expressions
   Syntax:    a ISNT b
   Semantics: A must match and b must not match.
   Example:   [DT] isnt a
-  	     "The dog chased a cat"
+             "The dog chased a cat"
               ---
 
   Syntax:    a b ...
   Semantics: a and b must appear adjacent to each other.
   Example:   <dog> eat [NP]
-  	     My poodle eats kibble.
-	        ------------------
+             My poodle eats kibble.
+                ------------------
 
   Syntax:    ANNOTATION WITH a
              ANNOTATION WITH (a, b, ...)
   Semantics: Match any of the given annotation containing the given
              expressions 
   Example:   CHUNK WITH (\"really\", those)
-  	     "I really love those really big dogs."
+             "I really love those really big dogs."
                             ---------------------
 
 Repeat
@@ -130,7 +139,7 @@ expression capture groups.
 
   Syntax:    name=expression
   Semantics: Capture the position of the matched expression with the
-  	     given name.
+             given name.
   Example:   a=CHUNK WITH (b=\"really\", c=those)
              "I really love those really big dogs"
                             [-c-] [-b--]
