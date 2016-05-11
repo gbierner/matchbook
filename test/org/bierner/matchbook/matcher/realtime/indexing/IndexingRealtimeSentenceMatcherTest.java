@@ -51,6 +51,7 @@ public class IndexingRealtimeSentenceMatcherTest {
     public void testRegexps() {
         System.out.println("Test regexps");
         check(matcher("/.*a.*/"), "my dog has a good name", 2,3, 3,4, 5,6);
+        check(matcher("/[0-9\\/]+/"), "a 10/19/1970", 1,2);
         check(matcher("name OR /m.*/"), "my dog has a good name", 0,1, 5,6);
     }
 
@@ -212,7 +213,6 @@ public class IndexingRealtimeSentenceMatcherTest {
 
     private void check(RealtimeSentenceMatcher matcher, String sentence, int ... vals) {
         RealtimeSentenceMatcher.Matches matches = matcher.match(analyzer.getSentence(sentence));
-        //System.out.println(matches);
         if (vals.length == 0)
             assertEquals(0, matches.size());
         else {

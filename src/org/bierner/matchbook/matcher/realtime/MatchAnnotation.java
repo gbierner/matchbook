@@ -12,7 +12,7 @@ import org.bierner.matchbook.matcher.realtime.RealtimeSentenceMatcher.Match;
  */
 @Data
 public class MatchAnnotation<T> implements Annotation<T>, Comparable<MatchAnnotation> {
-    @Delegate
+    @Delegate(excludes = Comparable.class)
     private final RealtimeSentenceMatcher.Match match;
 
     private final String id;

@@ -65,7 +65,7 @@ EXACT_CONCEPT:  '<''<'~['>']+'>''>';
 CONCEPT:      '<'~['>']+'>';
 CHUNK:        '['[A-Z]+']';
 POS:          '{'[A-Z]+'}';
-REGEX:        '/'~['/']+'/';
+REGEX:        '/'(~['/']|'\\/')+'/';
 NUMBER:       [0-9]+;
 
 WS   : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines

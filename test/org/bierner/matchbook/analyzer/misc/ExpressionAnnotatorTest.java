@@ -6,10 +6,8 @@
 package org.bierner.matchbook.analyzer.misc;
 
 import java.util.Locale;
-import lombok.Getter;
 import org.bierner.matchbook.analyzer.Analyzer;
 import org.bierner.matchbook.analyzer.Annotation;
-import org.bierner.matchbook.analyzer.AnnotationType;
 import org.bierner.matchbook.analyzer.Annotations;
 import org.bierner.matchbook.analyzer.Sentence;
 import org.bierner.matchbook.analyzer.SimpleAnalyzer;
@@ -61,18 +59,19 @@ public class ExpressionAnnotatorTest {
     @Test
     public void testComplex() throws Exception {
         class Test extends ExpressionAnnotator<Integer> {
-            @Getter
-            private final AnnotationType<Integer> annotationType;
             public Test() {
-                super("number", "{CD}");
-                annotationType = new AnnotationType<>(id, Integer.class);
-                AnnotationType.registerAnnotator(getClass(), annotationType);
+                super("number", "{CD}", Integer.class);
             }
 
             @Override
             protected Integer getValue(Sentence sentence, RealtimeSentenceMatcher.Match match) {
-                return Integer.parseInt(SentenceUtilities.getTokens(sentence).get(match.getStart()));
+                return Integer.parseInt(getId(sentence, match));
             }
+            @Override
+            protected String getId(Sentence sentence, RealtimeSentenceMatcher.Match match) {
+                return SentenceUtilities.getTokens(sentence).get(match.getStart());
+            }
+
         }
         Test test = new Test();
 
@@ -89,7 +88,7 @@ public class ExpressionAnnotatorTest {
         Assert.assertEquals(1, annotations.size());
 
         Annotation<Integer> a = annotations.get(0);
-        Assert.assertEquals("number", a.getId());
+        Assert.assertEquals("123", a.getId());
         Assert.assertEquals(new Integer(123), a.getValue());
         Assert.assertEquals(1, a.getStart());
         Assert.assertEquals(2, a.getEnd());
