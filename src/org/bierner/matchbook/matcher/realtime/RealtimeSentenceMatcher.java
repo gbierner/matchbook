@@ -102,8 +102,29 @@ public interface RealtimeSentenceMatcher {
          */
         Match get(int pos);
 
+        /**
+         * Streams the matches
+         * @return a stream of matches
+         */
         public default Stream<Match> stream() {
             return StreamSupport.stream(spliterator(), false);
+        }
+
+        /**
+         * Streams the matches while removing ones that are totally subsumed by another. This may reorder the matches.
+         * @return a stream of matches
+         */
+        public default Stream<Match> streamSubsumed() {
+            final int[] lastEnd = new int[] {-1};
+            return stream().
+                    sorted((a,b)-> a.getStart() != b.getStart()? a.getStart() - b.getStart() : b.getEnd() - a.getEnd()).
+                    filter(m -> {
+                        if (m.getStart() >= lastEnd[0]) {
+                            lastEnd[0] = m.getEnd();
+                            return true;
+                        } else
+                            return false;
+                    });
         }
     }
 
@@ -113,4 +134,4 @@ public interface RealtimeSentenceMatcher {
      * @return a {@link Matches} object.
      */
     Matches match(Sentence sentence);
-}
+    }

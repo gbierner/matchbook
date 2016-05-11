@@ -1,9 +1,7 @@
 package org.bierner.matchbook.analyzer.misc;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import org.bierner.matchbook.analyzer.AnnotatableSentence;
 import org.bierner.matchbook.analyzer.Annotation;
@@ -63,7 +61,10 @@ public abstract class ExpressionAnnotator<T> implements SentenceAnnotator {
         sentence.setAnnotations(getAnnotationType(), new RangeAnnotations(annotations));
     }
 
-    public static class SimpleExpressionAnnotator extends ExpressionAnnotator<String> {
+    /**
+     * An expression annotator whose values and ids are just the matched substrings
+     */
+    public static abstract class SimpleExpressionAnnotator extends ExpressionAnnotator<String> {
         public SimpleExpressionAnnotator(String id, String expr) {
             super(id, expr, String.class);
         }
@@ -78,5 +79,25 @@ public abstract class ExpressionAnnotator<T> implements SentenceAnnotator {
             return getValue(sentence, match);
         }
     }
+
+    /**
+     * An expression annotator whose value is the match and id are any captured group ids
+     */
+    public static abstract class MatchExpressionAnnotator extends ExpressionAnnotator<Match> {
+            public MatchExpressionAnnotator(String id, String expr) {
+                super(id, expr, Match.class);
+            }
+
+            @Override
+            protected Match getValue(Sentence sntnc, RealtimeSentenceMatcher.Match match) {
+                return match;
+            }
+
+            @Override
+            protected String getId(Sentence sntnc, RealtimeSentenceMatcher.Match match) {
+                return match.getCaptureGroups() == null? id : match.getCaptureGroups().getIds().toString();
+            }
+    };
+
 
 }
