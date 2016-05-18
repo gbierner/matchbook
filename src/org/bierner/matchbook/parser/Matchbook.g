@@ -56,7 +56,8 @@ IS   :'IS';
 ISNT :'ISNT';
 WITH :'WITH';
 
-LOWERCASE :   [a-z]+;
+NUMBER:       [0-9]+;
+LOWERCASE :   [a-z][a-z0-9_]*;
 ANNOTATION:   [A-Z]+(':'[a-zA-Z]+)?;
 TOKENS:       '"'~['"']+'"';
 STEMS:        '\''~['\'']+'\'';
@@ -66,6 +67,5 @@ CONCEPT:      '<'~['>']+'>';
 CHUNK:        '['[A-Z]+']';
 POS:          '{'[A-Z]+'}';
 REGEX:        '/'(~['/']|'\\/')+'/';
-NUMBER:       [0-9]+;
 
 WS   : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines

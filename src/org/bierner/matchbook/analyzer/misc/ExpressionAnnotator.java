@@ -2,6 +2,7 @@ package org.bierner.matchbook.analyzer.misc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import org.bierner.matchbook.analyzer.AnnotatableSentence;
 import org.bierner.matchbook.analyzer.Annotation;
@@ -95,7 +96,7 @@ public abstract class ExpressionAnnotator<T> implements SentenceAnnotator {
 
             @Override
             protected String getId(Sentence sntnc, RealtimeSentenceMatcher.Match match) {
-                return match.getCaptureGroups() == null? id : match.getCaptureGroups().getIds().toString();
+                return match.getCaptureGroups() == null? id : match.getCaptureGroups().getIds().stream().collect(Collectors.joining(","));
             }
     };
 

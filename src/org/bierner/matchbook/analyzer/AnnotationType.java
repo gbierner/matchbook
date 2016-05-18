@@ -28,6 +28,7 @@ public class AnnotationType<T> {
     public static final AnnotationType<String>  POS      = new AnnotationType<>(Annotation.POS, String.class);
     public static final AnnotationType<String>  CHUNK    = new AnnotationType<>(Annotation.CHUNK, String.class);
     public static final AnnotationType<String>  BOUNDARY = new AnnotationType<>(Annotation.BOUNDARY, String.class);
+    public static final AnnotationType<String>  SENTENCE = new AnnotationType<>(Annotation.SENTENCE, String.class);
     public static final AnnotationType<Concept> CONCEPT  = new AnnotationType<>(Annotation.CONCEPT, Concept.class);
     public static final AnnotationType<Concept> ANCESTOR_CONCEPT  = new AnnotationType<>(Annotation.ANCESTOR_CONCEPT, Concept.class);
 

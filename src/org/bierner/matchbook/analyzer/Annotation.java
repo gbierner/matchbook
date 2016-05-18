@@ -23,6 +23,7 @@ public interface Annotation<T> {
     public static final String BOUNDARY         = "BOUNDARY";
     public static final String BOUNDARY_START   = "START";
     public static final String BOUNDARY_END     = "END";
+    public static final String SENTENCE         = "SENTENCE";
 
     /**
      * Returns a string based id for this annotation that can be used by a matcher
