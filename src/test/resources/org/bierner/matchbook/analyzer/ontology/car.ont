@@ -1,0 +1,5 @@
+#	PART_OF	org.bierner.matchbook.analyzer.ontology.Ontology$Concept	org.bierner.matchbook.analyzer.ontology.Ontology$Concept	CONTAINS
+PART_OF	engine	car
+PART_OF	wheel	car
+PART_OF	piston	engine
+SYNS	engine	engine

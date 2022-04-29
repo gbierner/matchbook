@@ -1,7 +1,0 @@
-HYPO	animal	dog	cat
-HYPO	dog	poodle	boxer
-SYNS	cat	cat	feline
-SYNS	dog	dog	canine
-SYNS	dog	dog	canine
-SYNS	boxer	boxer
-SYNS	poodle	poodle
