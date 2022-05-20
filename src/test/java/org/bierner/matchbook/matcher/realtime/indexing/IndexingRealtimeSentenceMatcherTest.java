@@ -5,6 +5,7 @@ package org.bierner.matchbook.matcher.realtime.indexing;
 
 import java.util.Locale;
 import org.bierner.matchbook.analyzer.Analyzer;
+import org.bierner.matchbook.analyzer.AnnotationType;
 import org.bierner.matchbook.analyzer.SimpleAnalyzer;
 import org.bierner.matchbook.analyzer.java.BreakIteratorSentenceDetector;
 import org.bierner.matchbook.analyzer.java.BreakIteratorTokenizer;
@@ -14,7 +15,9 @@ import org.bierner.matchbook.analyzer.ontology.Ontologies;
 import org.bierner.matchbook.analyzer.ontology.SimpleConceptAnnotator;
 import org.bierner.matchbook.analyzer.opennlp.PorterStemmer;
 import org.bierner.matchbook.analyzer.opennlp.ThreadSafeOpenNLPChunker;
+import org.bierner.matchbook.analyzer.opennlp.ThreadSafeOpenNLPPersonNER;
 import org.bierner.matchbook.analyzer.opennlp.ThreadSafeOpenNLPPosTagger;
+import org.bierner.matchbook.analyzer.util.SentenceUtilities;
 import org.bierner.matchbook.matcher.realtime.RealtimeExpressionFactory;
 import org.bierner.matchbook.matcher.realtime.RealtimeMatcherFactory;
 import org.bierner.matchbook.matcher.realtime.RealtimeSentenceMatcher;
@@ -38,6 +41,7 @@ public class IndexingRealtimeSentenceMatcherTest {
                     annotator(new BoundaryAnnotator()).
                     annotator(new ThreadSafeOpenNLPPosTagger(Locale.ENGLISH)).
                     annotator(new ThreadSafeOpenNLPChunker(Locale.ENGLISH)).
+                    annotator(new ThreadSafeOpenNLPPersonNER(Locale.ENGLISH)).
                     annotator(new BreakIteratorTokenizer(Locale.ENGLISH)).
                     annotator(new SimpleConceptAnnotator("animal.ont")).
                     annotator(new AncestorAnnotator()).
@@ -45,6 +49,12 @@ public class IndexingRealtimeSentenceMatcherTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    public void testEntity() {
+        System.out.println("Test entities");
+        check(matcher("ENTITY:person"), "I saw John Smith", 2,4);
     }
 
     @Test

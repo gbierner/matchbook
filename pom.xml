@@ -58,7 +58,30 @@
         </repository>
     </repositories>
     <build>
-            <plugins>
+      <plugins>
+	<plugin>
+		<artifactId>maven-dependency-plugin</artifactId>
+		<executions>
+		    <execution>
+			<phase>package</phase>
+			<goals>
+			    <goal>copy-dependencies</goal>
+			</goals>
+			<configuration>
+			    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+			    <includeScope>runtime</includeScope>
+			</configuration>
+		    </execution>
+		</executions>
+	</plugin>
+	    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-surefire-plugin</artifactId>
+		<configuration>
+		    <trimStackTrace>false</trimStackTrace>  
+		</configuration>
+	    </plugin>
+	
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
