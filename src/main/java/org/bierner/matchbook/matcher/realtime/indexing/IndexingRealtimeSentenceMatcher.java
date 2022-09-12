@@ -158,18 +158,21 @@ public class IndexingRealtimeSentenceMatcher implements RealtimeSentenceMatcher 
         Table<String, String, Vector> index = HashBasedTable.create(); // Annotation Type Name x Annotation Id -> Vector
         for (String typeName : idsToMatch.keySet()) {
             Set<String> ids = idsToMatch.get(typeName);
-            for (Annotation<?> annotation : sentence.getAnnotations(AnnotationType.getType(typeName))) {
-                if (ids.contains(annotation.getId())) {
-                    Vector v = index.get(typeName, annotation.getId());
-                    if (v == null)
-                        index.put(typeName, annotation.getId(), v = vectorFactory.newInstance());
-                    v.add(annotation.getStart(), annotation.getEnd());
-                }
-                if (ids.contains(null)) {
-                    Vector v = index.get(typeName, "");
-                    if (v == null)
-                        index.put(typeName, "", v = vectorFactory.newInstance());
-                    v.add(annotation.getStart(), annotation.getEnd());
+            AnnotationType<?> type = AnnotationType.getType(typeName);
+            if (type != null && sentence.hasAnnotation(type)) {
+                for (Annotation<?> annotation : sentence.getAnnotations(type)) {
+                    if (ids.contains(annotation.getId())) {
+                        Vector v = index.get(typeName, annotation.getId());
+                        if (v == null)
+                            index.put(typeName, annotation.getId(), v = vectorFactory.newInstance());
+                        v.add(annotation.getStart(), annotation.getEnd());
+                    }
+                    if (ids.contains(null)) {
+                        Vector v = index.get(typeName, "");
+                        if (v == null)
+                            index.put(typeName, "", v = vectorFactory.newInstance());
+                        v.add(annotation.getStart(), annotation.getEnd());
+                    }
                 }
             }
         }
