@@ -15,6 +15,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.ExtensionMethod;
 import org.bierner.matchbook.analyzer.Annotation;
 import org.bierner.matchbook.analyzer.AnnotationType;
+import org.bierner.matchbook.analyzer.Annotations;
 import org.bierner.matchbook.analyzer.Sentence;
 import org.bierner.matchbook.analyzer.util.SentenceUtilities;
 import org.bierner.matchbook.matcher.realtime.RealtimeSentenceMatcher;
@@ -159,8 +160,9 @@ public class IndexingRealtimeSentenceMatcher implements RealtimeSentenceMatcher 
         for (String typeName : idsToMatch.keySet()) {
             Set<String> ids = idsToMatch.get(typeName);
             AnnotationType<?> type = AnnotationType.getType(typeName);
-            if (type != null && sentence.hasAnnotation(type)) {
-                for (Annotation<?> annotation : sentence.getAnnotations(type)) {
+            Annotations<?> annotations = sentence.getAnnotations(type);
+            if (annotations != null) {
+                for (Annotation<?> annotation : annotations) {
                     if (ids.contains(annotation.getId())) {
                         Vector v = index.get(typeName, annotation.getId());
                         if (v == null)
