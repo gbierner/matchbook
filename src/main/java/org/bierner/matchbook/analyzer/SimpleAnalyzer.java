@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * An {@link Analyzer} implementation for sentences from a single language,
@@ -33,12 +34,19 @@ public class SimpleAnalyzer implements Analyzer {
     @NonNull private SentenceDetector sentenceDetector;
     @NonNull private Map<AnnotationType<?>, SentenceAnnotator> annotators;
 
+    public interface SentenceFactory {
+        Sentence getSentence(String text, Locale local, Analyzer analyzer);
+    }
+
+    @Setter
+    private SentenceFactory sentenceFactory = (t, l, a) -> new SimpleSentence(t, l, a);
+
     ///////////////////////////////////////////////////////////////////////////
     // Analyzer implementation
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public Sentence getSentence(String text) {
-        return new SimpleSentence(text, locale, this);
+        return sentenceFactory.getSentence(text, locale, this);
     }
 
     @Override
@@ -47,7 +55,7 @@ public class SimpleAnalyzer implements Analyzer {
             throw new IllegalArgumentException("Analyzer for " + this.locale + " cannot be used for " + locale);
         List<Sentence> result = new ArrayList<>();
         for (String sentence : sentenceDetector.getSentences(text))
-            result.add(new SimpleSentence(sentence, locale, this));
+            result.add(sentenceFactory.getSentence(sentence, locale, this));
 
         return result;
     }

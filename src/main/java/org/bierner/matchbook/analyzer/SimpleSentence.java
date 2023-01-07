@@ -7,23 +7,25 @@ package org.bierner.matchbook.analyzer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import lombok.Delegate;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
+
+import lombok.*;
 
 /**
  * An implementation of sentence which lazily gets annotations from its analyzer upon request.
  * @author gann
  */
-@Value
+@RequiredArgsConstructor @Getter
 public class SimpleSentence implements Sentence {
 
-    @NonNull private String   text;
-    @NonNull private Locale   locale;
-    @NonNull private Analyzer analyzer;
+    @NonNull private final String   text;
+    @NonNull private final Locale   locale;
+    @NonNull private final Analyzer analyzer;
 
-    private SimpleAnnotatable annotatable = new SimpleAnnotatable(this);
+    private SimpleAnnotatable annotatable = getAnnotatable();
+
+    protected SimpleAnnotatable getAnnotatable() {
+        return new SimpleAnnotatable(this);
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -40,7 +42,7 @@ public class SimpleSentence implements Sentence {
     }
 
     @RequiredArgsConstructor
-    private static class SimpleAnnotatable implements AnnotatableSentence {
+    protected static class SimpleAnnotatable implements AnnotatableSentence {
         @NonNull @Delegate
         SimpleSentence delegate;
 
