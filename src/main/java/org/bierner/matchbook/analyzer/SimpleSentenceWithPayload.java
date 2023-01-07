@@ -18,7 +18,7 @@ public class SimpleSentenceWithPayload<T> extends SimpleSentence {
         return new SimpleAnnotatableWithPayload(this);
     }
 
-    protected class SimpleAnnotatableWithPayload extends SimpleAnnotatable {
+    public class SimpleAnnotatableWithPayload extends SimpleAnnotatable {
         public SimpleAnnotatableWithPayload(@NonNull SimpleSentence delegate) {
             super(delegate);
         }
