@@ -5,18 +5,14 @@
 package org.bierner.matchbook.analyzer;
 
 import com.google.common.base.Splitter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * An {@link Analyzer} implementation for sentences from a single language,
@@ -38,19 +34,26 @@ public class SimpleAnalyzer implements Analyzer {
         Sentence getSentence(String text, Locale local, Analyzer analyzer);
     }
 
-    @Setter
-    private SentenceFactory sentenceFactory = (t, l, a) -> new SimpleSentence(t, l, a);
+    private static final  SentenceFactory DEFAULT_SENTENCE_FACTORY = SimpleSentence::new;
 
     ///////////////////////////////////////////////////////////////////////////
     // Analyzer implementation
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public Sentence getSentence(String text) {
+        return getSentence(text, DEFAULT_SENTENCE_FACTORY);
+    }
+
+    public Sentence getSentence(String text, SentenceFactory sentenceFactory) {
         return sentenceFactory.getSentence(text, locale, this);
     }
 
     @Override
     public List<Sentence> getSentences(String text) {
+        return getSentences(text, DEFAULT_SENTENCE_FACTORY);
+    }
+
+    public List<Sentence> getSentences(String text, SentenceFactory sentenceFactory) {
         if (! this.locale.equals(locale))
             throw new IllegalArgumentException("Analyzer for " + this.locale + " cannot be used for " + locale);
         List<Sentence> result = new ArrayList<>();

@@ -10,7 +10,7 @@ import java.util.Locale;
 import static org.junit.Assert.assertEquals;
 
 public class SimpleSentenceWithPayloadTest {
-     public static final AnnotationType<Integer> TYPE = new AnnotationType<>("INT", Integer.class);
+    public static final AnnotationType<Integer> TYPE = new AnnotationType<>("INT", Integer.class);
     static {
         AnnotationType.registerAnnotator(IntAnnotator.class, TYPE);
     }
@@ -24,9 +24,7 @@ public class SimpleSentenceWithPayloadTest {
                 annotator(new IntAnnotator()).
                 build();
 
-        analyzer.setSentenceFactory((t, l, a) -> new IntSentence(t, l, a, 42));
-
-        Sentence sentence = analyzer.getSentence("hello");
+        Sentence sentence = analyzer.getSentence("hello", (t, l, a) -> new IntSentence(t, l, a, 42));
         assertEquals(((IntSentence) sentence).getPayload().intValue(), 42);
         assertEquals(sentence.getAnnotations(TYPE).get(0).getValue().intValue(), 42);
     }
